@@ -11,7 +11,7 @@ todo lo que construyo es un intento de aplicar eso a machine learning: calcular
 el techo antes de decir que me acerco a él, ponerle intervalo de confianza a cada
 comparación, y publicar el resultado aunque contradiga lo que salí a demostrar.
 
-Los cuatro repositorios de abajo hacen eso. En todos ellos hay un hallazgo que
+Los cinco repositorios de abajo hacen eso. En todos ellos hay un hallazgo que
 va en contra de mi propia hipótesis.
 
 ---
@@ -72,6 +72,25 @@ cambia**, 15,6 veces más movimiento del que sugiere la diferencia de accuracy, 
 la mitad de esos cambios va de una respuesta incorrecta a otra distinta también
 incorrecta, algo que ninguna métrica agregada puede ver.
 
+**[noaa-gsod-climate](https://github.com/JosElias23/noaa-gsod-climate)** — ¿Una tabla de resultados que publiqué en 2025 sobrevive a ser recalculada?
+
+Cinco años de datos meteorológicos de NOAA, 20.110.620 registros estación-día,
+consultados con SQL.
+
+*No sobrevive.* La tabla del README de ese proyecto reportaba la niebla como el
+evento más común con 10,5 %; recalcular desde otra fuente da **lluvia con
+25,02 %, unas 4,5 veces más frecuente que la niebla**. El orden estaba invertido
+y las magnitudes erradas por cuatro órdenes de magnitud. La salida del notebook
+había estado bien siempre — lo que estaba mal era el texto publicado, que es la
+falla más incómoda, porque el código es la parte que la gente sí revisa.
+
+Dos caminos independientes coinciden dentro de **1,74 %**, con todas las
+diferencias del mismo signo, así que la corrección queda corroborada y no
+simplemente afirmada. Contar en SQL en vez de traer el año a pandas corre
+**38,7× más rápido**, y un panel balanceado de las 11.475 estaciones que
+reportaron los cinco años muestra que **cerca del 14 % del calentamiento
+aparente es la red de estaciones cambiando, no el clima**.
+
 ---
 
 ### De qué son evidencia estos repositorios
@@ -83,8 +102,8 @@ incorrecta, algo que ninguna métrica agregada puede ver.
 | **Optimización** | Formulación MILP, restricciones de complementariedad, horizonte rodante, cotas de previsión perfecta |
 | **RL** | Q-learning y SARSA tabulares desde cero, iteración de valor, inducción hacia atrás en horizonte finito |
 | **Serving** | FastAPI, Docker, exportación a ONNX, cuantización INT8, medición de latencia, throughput y costo |
-| **Datos** | DuckDB, SQL, ingesta desde APIs públicas, detección de fugas, particiones temporales |
-| **Ingeniería** | CI en GitHub Actions, 198 tests entre los cuatro repositorios, semillas fijas, pipelines reproducibles |
+| **Datos** | DuckDB, SQL, warehouse en Parquet sobre 20 M de filas, ingesta desde APIs públicas y archivos masivos, detección de fugas, particiones temporales |
+| **Ingeniería** | CI en GitHub Actions, 257 tests entre los cinco repositorios, semillas fijas, pipelines reproducibles |
 
 Cada número publicado en estos repositorios lo produce un script y queda
 guardado como JSON en `reports/`. Cuando un resultado es flojo, va escrito como

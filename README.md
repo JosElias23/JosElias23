@@ -12,7 +12,7 @@ ceiling before claiming to approach it, put a confidence interval on every
 comparison, and report the result even when it contradicts what I set out to
 prove.
 
-All four repositories below do that. Every one of them reports a finding that
+All five repositories below do that. Every one of them reports a finding that
 went against my own hypothesis.
 
 ---
@@ -71,6 +71,23 @@ which reads as free. It is not — **8.19% of individual predictions change**, 1
 more churn than the accuracy delta implies, and half of those flips are from one
 wrong answer to a different wrong answer, which no aggregate metric can see.
 
+**[noaa-gsod-climate](https://github.com/JosElias23/noaa-gsod-climate)** — Does a results table I published in 2025 survive being recomputed?
+
+Five years of NOAA weather data, 20,110,620 station-days, queried with SQL.
+
+*It does not.* The table in that project's README reported fog as the most common
+weather event at 10.5%; recomputing from a different source gives **rain at
+25.02%, roughly 4.5× more frequent than fog**. The ranking was inverted and the
+magnitudes were off by four orders of magnitude. The notebook's own output had
+been right all along — only the write-up was wrong, which is the more
+uncomfortable failure, because the code is the part people check.
+
+Two independent paths agree to within **1.74%**, every difference one-signed, so
+the correction is corroborated rather than asserted. Counting in SQL instead of
+pulling the year into pandas runs **38.7× faster**, and a balanced panel of the
+11,475 stations reporting in all five years shows **about 14% of the apparent
+warming is the station network changing, not the climate**.
+
 ---
 
 ### What these repositories are evidence of
@@ -82,8 +99,8 @@ wrong answer to a different wrong answer, which no aggregate metric can see.
 | **Optimisation** | MILP formulation, complementarity constraints, rolling horizon, perfect-foresight bounds |
 | **RL** | Tabular Q-learning/SARSA from scratch, value iteration, finite-horizon backward induction |
 | **Serving** | FastAPI, Docker, ONNX export, INT8 quantisation, latency/throughput/cost benchmarking |
-| **Data** | DuckDB, SQL, public API ingestion, leakage detection, temporal splits |
-| **Engineering** | GitHub Actions CI, 198 tests across four repositories, fixed seeds, reproducible pipelines |
+| **Data** | DuckDB, SQL, Parquet warehousing at 20 M rows, public API and bulk-archive ingestion, leakage detection, temporal splits |
+| **Engineering** | GitHub Actions CI, 257 tests across five repositories, fixed seeds, reproducible pipelines |
 
 Every number published in these repositories is produced by a script and stored
 as JSON in `reports/`. If a result is weak, it is written up as a limitation
