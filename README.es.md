@@ -90,12 +90,20 @@ y las magnitudes erradas por cuatro órdenes de magnitud. La salida del notebook
 había estado bien siempre — lo que estaba mal era el texto publicado, que es la
 falla más incómoda, porque el código es la parte que la gente sí revisa.
 
-Dos caminos independientes coinciden dentro de **1,74 %**, con todas las
-diferencias del mismo signo, así que la corrección queda corroborada y no
-simplemente afirmada. Contar en SQL en vez de traer el año a pandas corre
-**38,7× más rápido**, y un panel balanceado de las 11.475 estaciones que
-reportaron los cinco años muestra que **cerca del 14 % del calentamiento
-aparente es la red de estaciones cambiando, no el clima**.
+Contar en SQL en vez de traer el año a pandas corre **38,7× más rápido**, y un
+panel balanceado de las 11.475 estaciones que reportaron los cinco años muestra
+que **el 13,9 % del calentamiento aparente es la red de estaciones cambiando y
+no el clima, IC 95 % [8,2 %; 18,9 %]**.
+
+*La parte que no esperaba:* el repositorio traía un `sql/bigquery.sql` que nunca
+se había ejecutado, con un comentario prometiendo que devolvía los mismos
+números. No podía — ahí las columnas indicadoras son `STRING` y no `BOOL`, así
+que `COUNTIF(fog)` es un error de tipos y el archivo no devolvía nada.
+Corregido y corrido contra `bigquery-public-data.noaa_gsod`, coincide con mi
+propio parser de CSV en **las seis cuentas exactamente**, y le pone precio a lo
+que el experimento local solo podía cronometrar: `SELECT *` escanea 729,6 MiB
+contra 68,0 MiB por nombrar seis columnas, **10,8× menos bytes** por el mismo
+cambio de una palabra que localmente era 10,1× más rápido.
 
 ---
 
@@ -109,7 +117,8 @@ aparente es la red de estaciones cambiando, no el clima**.
 | **RL** | Q-learning y SARSA tabulares desde cero, iteración de valor, inducción hacia atrás en horizonte finito |
 | **Serving** | FastAPI, Docker, exportación a ONNX, cuantización INT8, medición de latencia, throughput y costo |
 | **Datos** | DuckDB, SQL, warehouse en Parquet sobre 20 M de filas, ingesta desde APIs públicas y archivos masivos, detección de fugas, particiones temporales |
-| **Ingeniería** | CI en GitHub Actions, 336 tests entre los cinco repositorios, semillas fijas, pipelines reproducibles |
+| **Cloud** | BigQuery sobre un dataset público, planificación de consultas en dry run, contabilidad de bytes escaneados y costo por consulta, credenciales por defecto de aplicación |
+| **Ingeniería** | CI en GitHub Actions, 344 tests entre los cinco repositorios, semillas fijas, pipelines reproducibles |
 
 Cada número publicado en estos repositorios lo produce un script y queda
 guardado como JSON en `reports/`. Cuando un resultado es flojo, va escrito como

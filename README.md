@@ -89,11 +89,20 @@ magnitudes were off by four orders of magnitude. The notebook's own output had
 been right all along — only the write-up was wrong, which is the more
 uncomfortable failure, because the code is the part people check.
 
-Two independent paths agree to within **1.74%**, every difference one-signed, so
-the correction is corroborated rather than asserted. Counting in SQL instead of
-pulling the year into pandas runs **38.7× faster**, and a balanced panel of the
-11,475 stations reporting in all five years shows **about 14% of the apparent
-warming is the station network changing, not the climate**.
+Counting in SQL instead of pulling the year into pandas runs **38.7× faster**,
+and a balanced panel of the 11,475 stations reporting in all five years shows
+**13.9% of the apparent warming is the station network changing, not the
+climate, 95% CI [8.2%, 18.9%]**.
+
+*The part I did not expect:* the repository shipped a `sql/bigquery.sql` that
+had never been executed, with a comment promising it returned the same numbers.
+It could not have — the indicator columns are `STRING` there, not `BOOL`, so
+`COUNTIF(fog)` is a type error and the file returned nothing. Fixed and run
+against `bigquery-public-data.noaa_gsod`, it agrees with my own CSV parser on
+**all six counts exactly**, and prices what the local experiment could only
+time: `SELECT *` scans 729.6 MiB against 68.0 MiB for naming six columns,
+**10.8× fewer bytes** for the same one-word change that was 10.1× faster
+locally.
 
 ---
 
@@ -107,7 +116,8 @@ warming is the station network changing, not the climate**.
 | **RL** | Tabular Q-learning/SARSA from scratch, value iteration, finite-horizon backward induction |
 | **Serving** | FastAPI, Docker, ONNX export, INT8 quantisation, latency/throughput/cost benchmarking |
 | **Data** | DuckDB, SQL, Parquet warehousing at 20 M rows, public API and bulk-archive ingestion, leakage detection, temporal splits |
-| **Engineering** | GitHub Actions CI, 336 tests across five repositories, fixed seeds, reproducible pipelines |
+| **Cloud** | BigQuery against a public dataset, dry-run query planning, bytes-scanned and cost-per-query accounting, application-default credentials |
+| **Engineering** | GitHub Actions CI, 344 tests across five repositories, fixed seeds, reproducible pipelines |
 
 Every number published in these repositories is produced by a script and stored
 as JSON in `reports/`. If a result is weak, it is written up as a limitation
