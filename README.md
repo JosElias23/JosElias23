@@ -28,8 +28,10 @@ measured latency and cost.
 0.0015, 95% CI [−0.0086, +0.0113], p = 0.75. Statistically indistinguishable.
 Writing "mBERT wins" would have been a claim about sampling noise. The best model
 on the dev set was also the worst on test, which is model-selection overfitting
-caught in the act. Serving: batching 64 documents gives 6.7× the throughput of
-one at a time.
+caught in the act — though once all ten pairwise comparisons carry a Holm
+correction, no two transformers separate on the test set at all. Serving:
+batching 32 documents gives 4.0× the throughput of one at a time on GPU, and
+1.4× on CPU.
 
 **[battery-dispatch-optimizer](https://github.com/JosElias23/battery-dispatch-optimizer)** — How much of a grid battery's theoretical value can you capture without knowing tomorrow's prices?
 
@@ -40,8 +42,9 @@ against the perfect-foresight bound.
 schedule. *The surprise:* a 12% better forecast by MAE bought only 2 points of
 capture rate. Dispatch does not need accurate prices, it needs the *ordering* of
 cheap and expensive hours — a conclusion two independent experiments reached
-separately. Computing the upper bound is what made the remaining 14% gap
-attributable to forecasting rather than to the solver.
+separately. Running the same rolling optimiser on the realised prices is what
+made the remaining 14% gap attributable to forecasting rather than to the
+horizon: −0.2% of it is the 48-hour window and 100.2% is forecast error.
 
 **[rl-from-scratch](https://github.com/JosElias23/rl-from-scratch)** — Q-learning and SARSA implemented from first principles, measured against an exactly computed optimum.
 
@@ -61,15 +64,19 @@ within an evaluation.
 
 Real data from the ChileCompra OCDS API (CC0), warehoused in DuckDB.
 
-*No.* TF-IDF + linear SVM reaches 0.5578 accuracy; the LLM zero-shot gets 0.2767
-— **32 points worse and 9,345× slower**. Given eight *retrieved* examples it
-draws level; eight *random* examples change nothing, which is exactly what the
-control arm exists to prove. A fine-tuned BETO did not beat TF-IDF either.
+*No.* TF-IDF + linear SVM reaches 0.5578 accuracy; the LLM zero-shot gets 0.2794
+— **27.8 points worse and 624× slower**. Given eight *retrieved* examples it
+closes most of the gap; eight *random* examples change nothing. But a majority
+vote over the same eight retrieved examples, with no language model at all,
+scores the same at a fifteenth of the cost — so the retrieval step carries that
+result, not the generation step. A fine-tuned BETO did not beat TF-IDF either,
+and loses significantly once its epoch count is chosen on a validation month
+instead of the held-out one.
 
 *The finding I am most attached to:* quantising to INT8 costs 0.53% accuracy,
-which reads as free. It is not — **8.19% of individual predictions change**, 15.6×
-more churn than the accuracy delta implies, and half of those flips are from one
-wrong answer to a different wrong answer, which no aggregate metric can see.
+which reads as free. It is not — **6.83% of individual predictions change** while
+every aggregate metric says nothing happened, and nearly half of those flips go
+from one wrong answer to a different wrong answer.
 
 **[noaa-gsod-climate](https://github.com/JosElias23/noaa-gsod-climate)** — Does a results table I published in 2025 survive being recomputed?
 
@@ -100,7 +107,7 @@ warming is the station network changing, not the climate**.
 | **RL** | Tabular Q-learning/SARSA from scratch, value iteration, finite-horizon backward induction |
 | **Serving** | FastAPI, Docker, ONNX export, INT8 quantisation, latency/throughput/cost benchmarking |
 | **Data** | DuckDB, SQL, Parquet warehousing at 20 M rows, public API and bulk-archive ingestion, leakage detection, temporal splits |
-| **Engineering** | GitHub Actions CI, 257 tests across five repositories, fixed seeds, reproducible pipelines |
+| **Engineering** | GitHub Actions CI, 336 tests across five repositories, fixed seeds, reproducible pipelines |
 
 Every number published in these repositories is produced by a script and stored
 as JSON in `reports/`. If a result is weak, it is written up as a limitation
